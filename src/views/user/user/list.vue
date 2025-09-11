@@ -55,12 +55,6 @@ const passwordForm = ref({
   confirm_password: '',
 })
 
-const fundingForm = ref({
-  user_id: 0,
-  new_funding_password: '',
-  confirm_funding_password: '',
-})
-
 onMounted(() => {
   getDataList()
 })
@@ -109,32 +103,12 @@ function onChangePassword(row: any) {
   dialogVisible.value = true
 }
 
-function onChangeFundingPassword(row: any) {
-  dialogTitle.value = '修改资金密码'
-  dialogType.value = 'funding'
-  fundingForm.value = {
-    user_id: row.id,
-    new_funding_password: '',
-    confirm_funding_password: '',
-  }
-  dialogVisible.value = true
-}
-
 function onToggleStatus(row: any) {
   const action = row.status === 1 ? '禁用' : '启用'
   ElMessageBox.confirm(`确认${action}用户「${row.nickname}」吗？`, '确认信息').then(() => {
     apiUser.toggleUserStatus({ user_id: row.id }).then(() => {
       getDataList()
       ElMessage.success(`${action}成功`)
-    })
-  }).catch(() => { })
-}
-
-function onResetTwoAuth(row: any) {
-  ElMessageBox.confirm(`确认重置用户「${row.nickname}」的两步验证吗？`, '确认信息').then(() => {
-    apiUser.resetTwoAuth({ user_id: row.id }).then(() => {
-      getDataList()
-      ElMessage.success('重置成功')
     })
   }).catch(() => { })
 }
@@ -163,22 +137,10 @@ function getStatusText(status: number) {
   return status === 1 ? '正常' : '禁用'
 }
 
-// 获取两步验证状态
-function getTwoAuthText(twoAuth: number) {
-  return twoAuth === 1 ? '已开启' : '未开启'
-}
-
-function getTwoAuthType(twoAuth: number) {
-  return twoAuth === 1 ? 'success' : 'info'
-}
-
 // 处理对话框确认
 function handleDialogConfirm() {
   if (dialogType.value === 'password') {
     handlePasswordSubmit()
-  }
-  else if (dialogType.value === 'funding') {
-    handleFundingSubmit()
   }
 }
 
@@ -204,30 +166,6 @@ function handlePasswordSubmit() {
     getDataList()
   })
 }
-
-function handleFundingSubmit() {
-  if (!fundingForm.value.new_funding_password || !fundingForm.value.confirm_funding_password) {
-    ElMessage.error('请填写新资金密码')
-    return
-  }
-
-  if (fundingForm.value.new_funding_password !== fundingForm.value.confirm_funding_password) {
-    ElMessage.error('两次输入的资金密码不一致')
-    return
-  }
-
-  if (fundingForm.value.new_funding_password.length < 6) {
-    ElMessage.error('资金密码长度不能少于6位')
-    return
-  }
-
-  apiUser.changeFundingPassword(fundingForm.value).then(() => {
-    ElMessage.success('资金密码修改成功')
-    dialogVisible.value = false
-    getDataList()
-  })
-}
-
 function handleDialogClose() {
   dialogVisible.value = false
 }
@@ -265,12 +203,12 @@ function handleDialogClose() {
                 />
               </ElSelect>
             </ElFormItem>
-            <ElFormItem label="邀请人ID">
+            <!-- <ElFormItem label="邀请人ID">
               <ElInput
                 v-model="search.parent_id" placeholder="请输入邀请人ID" clearable @keydown.enter="currentChange()"
                 @clear="currentChange()"
               />
-            </ElFormItem>
+            </ElFormItem> -->
             <ElFormItem>
               <ElButton @click="searchReset(); currentChange()">
                 重置
@@ -316,24 +254,17 @@ function handleDialogClose() {
         <ElTableColumn prop="id" label="ID" min-width="60" header-align="center" align="center" />
         <ElTableColumn prop="username" label="邮箱" min-width="200" header-align="center" align="center" />
         <ElTableColumn prop="nickname" label="昵称" min-width="150" header-align="center" align="center" />
-        <ElTableColumn prop="parent" label="邀请人" min-width="150" header-align="center" align="center">
+        <!-- <ElTableColumn prop="parent" label="邀请人" min-width="150" header-align="center" align="center">
           <template #default="scope">
             <span v-if="scope.row.parent">{{ scope.row.parent.nickname }} (ID: {{ scope.row.parent.id }})</span>
             <span v-else>-</span>
           </template>
-        </ElTableColumn>
-        <ElTableColumn prop="invite_count" label="邀请人数" min-width="90" header-align="center" align="center">
+        </ElTableColumn> -->
+        <!-- <ElTableColumn prop="invite_count" label="邀请人数" min-width="90" header-align="center" align="center">
           <template #default="scope">
             {{ scope.row.invite_count || 0 }}
           </template>
-        </ElTableColumn>
-        <ElTableColumn prop="two_auth" label="两步验证" min-width="100" header-align="center" align="center">
-          <template #default="scope">
-            <ElTag :type="getTwoAuthType(scope.row.two_auth)" size="small">
-              {{ getTwoAuthText(scope.row.two_auth) }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
+        </ElTableColumn> -->
         <ElTableColumn prop="status" label="状态" min-width="80" header-align="center" align="center">
           <template #default="scope">
             <ElTag :type="getStatusType(scope.row.status)" size="small">
@@ -353,12 +284,6 @@ function handleDialogClose() {
                 </ElButton>
               </ElTooltip>
 
-              <ElTooltip content="修改资金密码" placement="top">
-                <ElButton type="info" size="small" circle @click="onChangeFundingPassword(scope.row)">
-                  <FaIcon name="i-ep:wallet" />
-                </ElButton>
-              </ElTooltip>
-
               <ElTooltip :content="scope.row.status === 1 ? '禁用用户' : '启用用户'" placement="top">
                 <ElButton
                   :type="scope.row.status === 1 ? 'warning' : 'success'"
@@ -367,12 +292,6 @@ function handleDialogClose() {
                   @click="onToggleStatus(scope.row)"
                 >
                   <FaIcon :name="scope.row.status === 1 ? 'i-ep:close' : 'i-ep:check'" />
-                </ElButton>
-              </ElTooltip>
-
-              <ElTooltip v-if="scope.row.two_auth === 1" content="重置两步验证" placement="top">
-                <ElButton type="danger" size="small" circle @click="onResetTwoAuth(scope.row)">
-                  <FaIcon name="i-ep:refresh" />
                 </ElButton>
               </ElTooltip>
             </div>
@@ -405,15 +324,6 @@ function handleDialogClose() {
       </ElForm>
 
       <!-- 修改资金密码表单 -->
-      <ElForm v-else-if="dialogType === 'funding'" :model="fundingForm" label-width="100px">
-        <ElFormItem label="新资金密码" required>
-          <ElInput v-model="fundingForm.new_funding_password" type="password" placeholder="请输入新资金密码" />
-        </ElFormItem>
-        <ElFormItem label="确认密码" required>
-          <ElInput v-model="fundingForm.confirm_funding_password" type="password" placeholder="请再次输入新资金密码" />
-        </ElFormItem>
-      </ElForm>
-
       <template #footer>
         <span class="dialog-footer">
           <ElButton @click="handleDialogClose">取消</ElButton>

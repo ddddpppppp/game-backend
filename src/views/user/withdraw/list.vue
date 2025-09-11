@@ -181,16 +181,6 @@ function formatDate(date: string) {
                 @clear="currentChange()"
               />
             </ElFormItem>
-            <ElFormItem v-if="!fold" label="币种">
-              <ElSelect v-model="search.coin_type" placeholder="请选择币种" clearable>
-                <ElOption
-                  v-for="option in coinTypeOptions"
-                  :key="option.value"
-                  :label="option.label"
-                  :value="option.value"
-                />
-              </ElSelect>
-            </ElFormItem>
             <ElFormItem label="状态">
               <ElSelect v-model="search.status" placeholder="请选择状态" clearable>
                 <ElOption
@@ -253,7 +243,7 @@ function formatDate(date: string) {
                 总提现金额
               </p>
               <p class="text-2xl text-blue-600 font-bold">
-                {{ Number(stats.total_amount).toFixed(4) }}
+                ${{ Number(stats.total_amount).toFixed(2) }}
               </p>
             </div>
             <FaIcon name="i-ep:money" class="text-3xl text-blue-500" />
@@ -267,7 +257,7 @@ function formatDate(date: string) {
                 待审核
               </p>
               <p class="text-2xl text-orange-600 font-bold">
-                {{ Number(stats.pending_amount).toFixed(4) }}
+                ${{ Number(stats.pending_amount).toFixed(2) }}
               </p>
               <p class="text-xs text-gray-500">
                 {{ stats.pending_count }} 笔
@@ -284,7 +274,7 @@ function formatDate(date: string) {
                 已完成
               </p>
               <p class="text-2xl text-green-600 font-bold">
-                {{ Number(stats.completed_amount).toFixed(4) }}
+                ${{ Number(stats.completed_amount).toFixed(2) }}
               </p>
               <p class="text-xs text-gray-500">
                 {{ stats.completed_count }} 笔
@@ -301,13 +291,13 @@ function formatDate(date: string) {
                 失败
               </p>
               <p class="text-2xl text-red-600 font-bold">
-                {{ Number(stats.failed_amount).toFixed(4) }}
+                ${{ Number(stats.failed_amount).toFixed(2) }}
               </p>
               <p class="text-xs text-gray-500">
                 {{ stats.failed_count }} 笔
               </p>
             </div>
-            <FaIcon name="i-ep:error-filled" class="text-3xl text-red-500" />
+            <FaIcon name="i-ep:failed" class="text-3xl text-red-500" />
           </div>
         </ElCard>
       </div>
@@ -343,28 +333,27 @@ function formatDate(date: string) {
             <span v-else>-</span>
           </template>
         </ElTableColumn> -->
-        <ElTableColumn prop="coin_type" label="币种" min-width="80" header-align="center" align="center" />
-        <ElTableColumn prop="network" label="网络" min-width="80" header-align="center" align="center" />
-        <ElTableColumn prop="amount" label="提现金额" min-width="120" header-align="center" align="center">
+        <ElTableColumn prop="amount" label="提现金额" min-width="160" header-align="center" align="center">
           <template #default="scope">
             <div class="font-medium">
-              {{ formatAmount(scope.row.amount, scope.row.coin_type) }}
+              {{ formatAmount(scope.row.amount, '$') }}
             </div>
-            <div v-if="scope.row.usdt_amount && scope.row.usdt_amount !== scope.row.amount" class="text-sm text-gray-500">
-              实际: {{ formatAmount(scope.row.usdt_amount, 'USDT') }}
+            <div v-if="scope.row.actual_amount && scope.row.actual_amount !== scope.row.amount" class="text-sm text-gray-500">
+              实际下发: {{ formatAmount(scope.row.actual_amount, '$') }}
             </div>
           </template>
         </ElTableColumn>
         <ElTableColumn prop="fee" label="手续费" min-width="100" header-align="center" align="center">
           <template #default="scope">
-            {{ formatAmount(scope.row.fee || 0, scope.row.coin_type) }}
+            {{ formatAmount(scope.row.fee || 0, '$') }}
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="to_address" label="提现地址" min-width="160" header-align="center" align="center">
+        <ElTableColumn prop="channel_id" label="类型" min-width="80" header-align="center" align="center" />
+        <ElTableColumn prop="account" label="提现信息" min-width="160" header-align="center" align="center">
           <template #default="scope">
-            <div v-if="scope.row.to_address" class="flex items-center justify-center gap-2">
-              <span class="text-sm font-mono">{{ scope.row.to_address.slice(0, 6) }}...{{ scope.row.to_address.slice(-6) }}</span>
-              <ElButton size="small" text @click="copyToClipboard(scope.row.to_address)">
+            <div v-if="scope.row.account" class="flex items-center justify-center gap-2">
+              <span class="text-sm font-mono">{{ scope.row.account.slice(0, 6) }}...{{ scope.row.account.slice(-6) }}</span>
+              <ElButton size="small" text @click="copyToClipboard(scope.row.account)">
                 <FaIcon name="i-ep:copy-document" />
               </ElButton>
             </div>
