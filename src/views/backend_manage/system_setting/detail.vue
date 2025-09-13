@@ -229,8 +229,15 @@ function isWithdrawType() {
                 <ElFormItem label="最大提现金额" prop="max_amount">
                   <ElInputNumber v-model="form.max_amount" :min="0" :precision="2" placeholder="请输入最大提现金额" style="width: 100%" />
                 </ElFormItem>
-                <ElFormItem label="提现手续费率" prop="fee_rate">
-                  <ElInput v-model="form.fee_rate" :min="0" :max="100" :precision="2" placeholder="请输入手续费率（0-100之间）" style="width: 100%">
+                <ElFormItem label="Usdt提现手续费率" prop="usdt_fee_rate">
+                  <ElInput v-model="form.usdt_fee_rate" :min="0" :max="100" :precision="2" placeholder="请输入USDT手续费率（0-100之间）" style="width: 100%">
+                    <template #append>
+                      %
+                    </template>
+                  </ElInput>
+                </ElFormItem>
+                <ElFormItem label="CashApp手续费率" prop="cashapp_fee_rate">
+                  <ElInput v-model="form.cashapp_fee_rate" :min="0" :max="100" :precision="2" placeholder="请输入CashApp手续费率（0-100之间）" style="width: 100%">
                     <template #append>
                       %
                     </template>
