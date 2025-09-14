@@ -19,4 +19,13 @@ export default {
 
   // 批量更新状态
   batchUpdateStatus: (data: any) => api.post('shop/Canada/batchUpdateStatus', { form: data }),
+
+  // 获取开奖记录列表
+  getDrawRecordsList: (params: any) => api.post('shop/Canada/getDrawRecordsList', params),
+
+  // 获取投注记录列表
+  getBetRecordsList: (params: any) => api.post('shop/Canada/getBetRecordsList', params),
+
+  // 获取仪表盘统计数据
+  getDashboardStats: (params: any) => api.post('shop/Canada/getDashboardStats', params),
 }
