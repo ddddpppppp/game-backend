@@ -257,7 +257,7 @@ function getUserTypeType(userType: string) {
             </ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="actual_profit" label="实际盈亏" min-width="100" header-align="center" align="center">
+        <ElTableColumn prop="actual_profit" label="用户盈亏" min-width="100" header-align="center" align="center">
           <template #default="scope">
             <span :class="Number(scope.row.actual_profit.replace(/,/g, '')) >= 0 ? 'text-green-600' : 'text-red-600'" class="font-medium">
               ${{ scope.row.actual_profit }}

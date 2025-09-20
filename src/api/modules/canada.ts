@@ -28,4 +28,7 @@ export default {
 
   // 获取仪表盘统计数据
   getDashboardStats: (params: any) => api.post('shop/Canada/getDashboardStats', params),
+
+  // 获取图表数据
+  getChartData: (params: any) => api.post('shop/Canada/getChartData', params),
 }

@@ -22,6 +22,8 @@ const searchDefault = {
   nickname: '',
   status: '',
   parent_id: '',
+  ip: '',
+  device_code: '',
 }
 const search = ref({ ...searchDefault })
 function searchReset() {
@@ -67,6 +69,8 @@ function getDataList() {
     ...(search.value.nickname && { nickname: search.value.nickname }),
     ...(search.value.status !== '' && { status: search.value.status }),
     ...(search.value.parent_id && { parent_id: search.value.parent_id }),
+    ...(search.value.ip && { ip: search.value.ip }),
+    ...(search.value.device_code && { device_code: search.value.device_code }),
   }
   apiUser.getUserList(params).then((res: any) => {
     loading.value = false
@@ -203,6 +207,18 @@ function handleDialogClose() {
                 />
               </ElSelect>
             </ElFormItem>
+            <ElFormItem label="IP">
+              <ElInput
+                v-model="search.ip" placeholder="请输入IP" clearable @keydown.enter="currentChange()"
+                @clear="currentChange()"
+              />
+            </ElFormItem>
+            <ElFormItem label="设备码">
+              <ElInput
+                v-model="search.device_code" placeholder="请输入设备码" clearable @keydown.enter="currentChange()"
+                @clear="currentChange()"
+              />
+            </ElFormItem>
             <!-- <ElFormItem label="邀请人ID">
               <ElInput
                 v-model="search.parent_id" placeholder="请输入邀请人ID" clearable @keydown.enter="currentChange()"
@@ -265,6 +281,16 @@ function handleDialogClose() {
             {{ scope.row.invite_count || 0 }}
           </template>
         </ElTableColumn> -->
+        <ElTableColumn prop="ip_times" label="IP" min-width="80" header-align="center" align="center">
+          <template #default="scope">
+            <span :class="scope.row.ip_times > 1 ? 'text-red-500' : ''">{{ scope.row.ip }}</span>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="device_code_times" label="设备码" min-width="80" header-align="center" align="center">
+          <template #default="scope">
+            <span :class="scope.row.device_code_times > 1 ? 'text-red-500' : ''">{{ scope.row.device_code }}</span>
+          </template>
+        </ElTableColumn>
         <ElTableColumn prop="status" label="状态" min-width="80" header-align="center" align="center">
           <template #default="scope">
             <ElTag :type="getStatusType(scope.row.status)" size="small">

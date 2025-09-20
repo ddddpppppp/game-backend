@@ -37,10 +37,14 @@ const personalStats = ref({
   depositAmountTrend: { value: 0, trend: 'up' },
   withdrawAmount: 0,
   withdrawAmountTrend: { value: 0, trend: 'up' },
-  betAmount: 0,
-  betAmountTrend: { value: 0, trend: 'up' },
-  platformProfit: 0,
-  platformProfitTrend: { value: 0, trend: 'up' },
+  depositChannelFee: 0,
+  depositChannelFeeTrend: { value: 0, trend: 'up' },
+  withdrawFee: 0,
+  withdrawFeeTrend: { value: 0, trend: 'up' },
+  grossProfit: 0,
+  grossProfitTrend: { value: 0, trend: 'up' },
+  realProfit: 0,
+  realProfitTrend: { value: 0, trend: 'up' },
 })
 
 // Chart data
@@ -48,8 +52,6 @@ const chartData = ref({
   labels: [],
   depositData: [],
   withdrawData: [],
-  betData: [],
-  profitData: [],
 })
 
 // ECharts option for team performance
@@ -58,8 +60,6 @@ const teamChartOption = computed(() => {
   const colors = [
     '#10b981', // 充值 - 绿色
     '#ef4444', // 提现 - 红色
-    '#3b82f6', // 投注 - 蓝色
-    '#f59e0b', // 平台盈利 - 黄色
   ]
 
   return {
@@ -77,7 +77,7 @@ const teamChartOption = computed(() => {
       },
     },
     legend: {
-      data: ['平台充值', '平台提现', '用户投注', '平台盈利'],
+      data: ['平台充值', '平台提现'],
       top: 10,
     },
     grid: {
@@ -115,7 +115,7 @@ const teamChartOption = computed(() => {
       {
         name: '平台充值',
         type: 'bar',
-        barWidth: 15,
+        barWidth: 30,
         itemStyle: {
           color: colors[0],
         },
@@ -124,34 +124,11 @@ const teamChartOption = computed(() => {
       {
         name: '平台提现',
         type: 'bar',
-        barWidth: 15,
+        barWidth: 30,
         itemStyle: {
           color: colors[1],
         },
         data: chartData.value.withdrawData || [],
-      },
-      {
-        name: '用户投注',
-        type: 'bar',
-        barWidth: 15,
-        itemStyle: {
-          color: colors[2],
-        },
-        data: chartData.value.betData || [],
-      },
-      {
-        name: '平台盈利',
-        type: 'line',
-        smooth: true,
-        symbolSize: 8,
-        lineStyle: {
-          width: 3,
-          color: colors[3],
-        },
-        itemStyle: {
-          color: colors[3],
-        },
-        data: chartData.value.profitData || [],
       },
     ],
     color: colors,
@@ -159,32 +136,55 @@ const teamChartOption = computed(() => {
 })
 
 onMounted(() => {
-  getDashboardData()
+  getDashboardStats()
+  getChartData()
 })
 
-async function getDashboardData() {
+// 获取统计概览数据
+async function getDashboardStats() {
   loading.value = true
   try {
     const res = await apiCanada.getDashboardStats({
+      startDate: dateRange.value[0],
+      endDate: dateRange.value[1],
+    })
+
+    if (res && res.status === 1 && res.data) {
+      // Update personal stats
+      personalStats.value = res.data || personalStats.value
+    }
+  }
+  catch (error) {
+    console.error('获取仪表盘统计数据失败:', error)
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+// 获取图表数据
+async function getChartData() {
+  try {
+    const res = await apiCanada.getChartData({
       startDate: dateRange.value[0],
       endDate: dateRange.value[1],
       period: teamPeriod.value,
     })
 
     if (res && res.status === 1 && res.data) {
-      // Update personal stats
-      personalStats.value = res.data.personal || personalStats.value
-
       // Update chart data
-      chartData.value = res.data.chart || chartData.value
+      chartData.value = res.data || chartData.value
     }
   }
   catch (error) {
-    console.error('获取仪表盘数据失败:', error)
+    console.error('获取图表数据失败:', error)
   }
-  finally {
-    loading.value = false
-  }
+}
+
+// 统一刷新方法（用于日期范围改变时）
+function refreshDashboard() {
+  getDashboardStats()
+  getChartData()
 }
 
 // Format number with commas
@@ -234,7 +234,7 @@ function getLast7Days() {
         </div>
 
         <div class="filter-actions">
-          <el-button type="primary" size="large" class="search-btn" @click="getDashboardData">
+          <el-button type="primary" size="large" class="search-btn" @click="refreshDashboard">
             <FaIcon name="i-ep:search" />
           </el-button>
         </div>
@@ -259,19 +259,40 @@ function getLast7Days() {
           :trend="personalStats.withdrawAmountTrend.trend"
         />
         <FaDigitalCard
-          title="用户投注"
-          icon="i-ep:coin"
-          :digital="`$${formatNumber(personalStats.betAmount)}`"
-          :description="`较上个周期${personalStats.betAmountTrend.trend === 'up' ? '上升' : '下降'}${personalStats.betAmountTrend.value}%`"
-          :trend="personalStats.betAmountTrend.trend"
+          title="充值通道费"
+          icon="i-ep:credit-card"
+          :digital="`$${formatNumber(personalStats.depositChannelFee)}`"
+          :description="`较上个周期${personalStats.depositChannelFeeTrend.trend === 'up' ? '上升' : '下降'}${personalStats.depositChannelFeeTrend.value}%`"
+          :trend="personalStats.depositChannelFeeTrend.trend"
         />
         <FaDigitalCard
-          title="平台盈利"
-          icon="i-ep:data-analysis"
-          :digital="`$${formatNumber(personalStats.platformProfit)}`"
-          :description="`较上个周期${personalStats.platformProfitTrend.trend === 'up' ? '上升' : '下降'}${personalStats.platformProfitTrend.value}%`"
-          :trend="personalStats.platformProfitTrend.trend"
+          title="提现手续费"
+          icon="i-ep:coin"
+          :digital="`$${formatNumber(personalStats.withdrawFee)}`"
+          :description="`较上个周期${personalStats.withdrawFeeTrend.trend === 'up' ? '上升' : '下降'}${personalStats.withdrawFeeTrend.value}%`"
+          :trend="personalStats.withdrawFeeTrend.trend"
         />
+      </div>
+
+      <!-- Stat Cards - Second Row -->
+      <div class="mb-4 flex-center gap-4">
+        <FaDigitalCard
+          title="毛利润"
+          icon="i-ep:data-analysis"
+          :digital="`$${formatNumber(personalStats.grossProfit)}`"
+          :description="`较上个周期${personalStats.grossProfitTrend.trend === 'up' ? '上升' : '下降'}${personalStats.grossProfitTrend.value}%`"
+          :trend="personalStats.grossProfitTrend.trend"
+        />
+        <FaDigitalCard
+          title="真实利润"
+          icon="i-ep:trophy"
+          :digital="`$${formatNumber(personalStats.realProfit)}`"
+          :description="`较上个周期${personalStats.realProfitTrend.trend === 'up' ? '上升' : '下降'}${personalStats.realProfitTrend.value}%`"
+          :trend="personalStats.realProfitTrend.trend"
+        />
+        <!-- 空占位符保持布局 -->
+        <div class="flex-1"></div>
+        <div class="flex-1"></div>
       </div>
 
       <!-- Team Performance Section with ECharts -->
@@ -281,7 +302,7 @@ function getLast7Days() {
             <template #header>
               <div class="card-header">
                 <span>Canada28 数据统计</span>
-                <el-radio-group v-model="teamPeriod" size="small" @change="getDashboardData">
+                <el-radio-group v-model="teamPeriod" size="small" @change="getChartData">
                   <el-radio-button value="day">
                     日
                   </el-radio-button>
