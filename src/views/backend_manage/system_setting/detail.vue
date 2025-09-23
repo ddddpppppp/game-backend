@@ -212,6 +212,13 @@ function isWithdrawType() {
                     </template>
                   </ElInput>
                 </ElFormItem>
+                <ElFormItem label="USDC Online赠送比例" prop="usdc_online_gift_rate">
+                  <ElInput v-model="form.usdc_online_gift_rate" :min="0" :max="100" :precision="2" placeholder="请输入USDC Online赠送比例（0-100之间）" style="width: 100%">
+                    <template #append>
+                      %
+                    </template>
+                  </ElInput>
+                </ElFormItem>
                 <ElFormItem label="CashApp赠送比例" prop="cashapp_gift_rate">
                   <ElInput v-model="form.cashapp_gift_rate" :min="0" :max="100" :precision="2" placeholder="请输入CashApp赠送比例（0-100之间）" style="width: 100%">
                     <template #append>
@@ -243,8 +250,18 @@ function isWithdrawType() {
                     </template>
                   </ElInput>
                 </ElFormItem>
+                <ElFormItem label="USDC手续费率" prop="usdc_fee_rate">
+                  <ElInput v-model="form.usdc_fee_rate" :min="0" :max="100" :precision="2" placeholder="请输入USDC手续费率（0-100之间）" style="width: 100%">
+                    <template #append>
+                      %
+                    </template>
+                  </ElInput>
+                </ElFormItem>
                 <ElFormItem label="每日提现次数限制" prop="daily_limit">
                   <ElInputNumber v-model="form.daily_limit" :min="1" placeholder="请输入每日提现次数限制" style="width: 100%" />
+                </ElFormItem>
+                <ElFormItem label="赠送提现流水倍数" prop="gift_transaction_times">
+                  <ElInputNumber v-model="form.gift_transaction_times" :min="1" placeholder="请输入赠送提现流水倍数" style="width: 100%" />
                 </ElFormItem>
                 <!-- <ElFormItem label="是否需要人工审核">
                   <ElSwitch v-model="form.review_required" />
