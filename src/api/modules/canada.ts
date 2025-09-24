@@ -31,4 +31,7 @@ export default {
 
   // 获取图表数据
   getChartData: (params: any) => api.post('shop/Canada/getChartData', params),
+
+  // 获取财务统计数据
+  getFinanceStats: (params: any) => api.post('shop/Canada/getFinanceStats', params),
 }

@@ -53,6 +53,15 @@ const routes: RouteRecordRaw[] = [
           auth: 'canada28CrawList.browse',
         },
       },
+      {
+        path: 'canada28Fianace',
+        name: 'canada28Fianace',
+        component: () => import('@/views/canada28/finance/index.vue'),
+        meta: {
+          title: '财务统计',
+          auth: 'canada28Fianace.browse',
+        },
+      },
     ],
   },
 ]

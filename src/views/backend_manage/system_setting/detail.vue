@@ -162,8 +162,7 @@ function getSettingTypeTitle() {
 
 // 判断是否为充值设置
 function isRechargeType() {
-  const name = route.params.name as string
-  return ['usdt_recharge', 'btc_recharge', 'eth_recharge'].includes(name)
+  return route.params.name === 'recharge_setting'
 }
 
 // 判断是否为提现设置
@@ -196,14 +195,18 @@ function isWithdrawType() {
       <ElRow type="flex" justify="center">
         <ElCol :md="24" :lg="16">
           <div v-loading="loading">
-            <ElForm ref="formRef" :model="form" :rules="formRules" label-width="150px" label-suffix="：">
+            <ElForm ref="formRef" :model="form" :rules="formRules" label-width="180px" label-suffix="：">
               <!-- 充值设置表单 -->
               <template v-if="isRechargeType()">
-                <ElFormItem label="最小充值金额" prop="min_amount">
-                  <ElInputNumber v-model="form.min_amount" :min="0" :precision="4" placeholder="请输入最小充值金额" style="width: 100%" />
+                <!-- USDT 设置 -->
+                <ElDivider content-position="left">
+                  USDT 充值设置
+                </ElDivider>
+                <ElFormItem label="USDT最小充值金额" prop="usdt_min_amount">
+                  <ElInputNumber v-model="form.usdt_min_amount" :min="0" :precision="4" placeholder="请输入USDT最小充值金额" style="width: 100%" />
                 </ElFormItem>
-                <ElFormItem label="最大充值金额" prop="max_amount">
-                  <ElInputNumber v-model="form.max_amount" :min="0" :precision="4" placeholder="请输入最大充值金额" style="width: 100%" />
+                <ElFormItem label="USDT最大充值金额" prop="usdt_max_amount">
+                  <ElInputNumber v-model="form.usdt_max_amount" :min="0" :precision="4" placeholder="请输入USDT最大充值金额" style="width: 100%" />
                 </ElFormItem>
                 <ElFormItem label="USDT赠送比例" prop="usdt_gift_rate">
                   <ElInput v-model="form.usdt_gift_rate" :min="0" :max="100" :precision="2" placeholder="请输入USDT赠送比例（0-100之间）" style="width: 100%">
@@ -212,15 +215,37 @@ function isWithdrawType() {
                     </template>
                   </ElInput>
                 </ElFormItem>
-                <ElFormItem label="USDC Online赠送比例" prop="usdc_online_gift_rate">
-                  <ElInput v-model="form.usdc_online_gift_rate" :min="0" :max="100" :precision="2" placeholder="请输入USDC Online赠送比例（0-100之间）" style="width: 100%">
+
+                <!-- CashApp 设置 -->
+                <ElDivider content-position="left">
+                  CashApp 充值设置
+                </ElDivider>
+                <ElFormItem label="CashApp最小充值金额" prop="cashapp_min_amount">
+                  <ElInputNumber v-model="form.cashapp_min_amount" :min="0" :precision="4" placeholder="请输入CashApp最小充值金额" style="width: 100%" />
+                </ElFormItem>
+                <ElFormItem label="CashApp最大充值金额" prop="cashapp_max_amount">
+                  <ElInputNumber v-model="form.cashapp_max_amount" :min="0" :precision="4" placeholder="请输入CashApp最大充值金额" style="width: 100%" />
+                </ElFormItem>
+                <ElFormItem label="CashApp赠送比例" prop="cashapp_gift_rate">
+                  <ElInput v-model="form.cashapp_gift_rate" :min="0" :max="100" :precision="2" placeholder="请输入CashApp赠送比例（0-100之间）" style="width: 100%">
                     <template #append>
                       %
                     </template>
                   </ElInput>
                 </ElFormItem>
-                <ElFormItem label="CashApp赠送比例" prop="cashapp_gift_rate">
-                  <ElInput v-model="form.cashapp_gift_rate" :min="0" :max="100" :precision="2" placeholder="请输入CashApp赠送比例（0-100之间）" style="width: 100%">
+
+                <!-- USDC Online 设置 -->
+                <ElDivider content-position="left">
+                  USDC Online 充值设置
+                </ElDivider>
+                <ElFormItem label="USDC最小充值金额" prop="usdc_online_min_amount">
+                  <ElInputNumber v-model="form.usdc_online_min_amount" :min="0" :precision="4" placeholder="请输入USDC Online最小充值金额" style="width: 100%" />
+                </ElFormItem>
+                <ElFormItem label="USDC最大充值金额" prop="usdc_online_max_amount">
+                  <ElInputNumber v-model="form.usdc_online_max_amount" :min="0" :precision="4" placeholder="请输入USDC Online最大充值金额" style="width: 100%" />
+                </ElFormItem>
+                <ElFormItem label="USDC赠送比例" prop="usdc_online_gift_rate">
+                  <ElInput v-model="form.usdc_online_gift_rate" :min="0" :max="100" :precision="2" placeholder="请输入USDC Online赠送比例（0-100之间）" style="width: 100%">
                     <template #append>
                       %
                     </template>
@@ -250,8 +275,8 @@ function isWithdrawType() {
                     </template>
                   </ElInput>
                 </ElFormItem>
-                <ElFormItem label="USDC手续费率" prop="usdc_fee_rate">
-                  <ElInput v-model="form.usdc_fee_rate" :min="0" :max="100" :precision="2" placeholder="请输入USDC手续费率（0-100之间）" style="width: 100%">
+                <ElFormItem label="USDC手续费率" prop="usdc_online_fee_rate">
+                  <ElInput v-model="form.usdc_online_fee_rate" :min="0" :max="100" :precision="2" placeholder="请输入USDC手续费率（0-100之间）" style="width: 100%">
                     <template #append>
                       %
                     </template>

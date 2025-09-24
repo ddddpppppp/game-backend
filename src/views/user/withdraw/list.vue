@@ -43,13 +43,6 @@ const stats = ref({
   failed_count: 0,
 })
 
-// 币种选项
-const coinTypeOptions = [
-  { label: 'USDT', value: 'USDT' },
-  { label: 'BTC', value: 'BTC' },
-  { label: 'ETH', value: 'ETH' },
-]
-
 // 状态选项
 const statusOptions = [
   { label: '待审核', value: 'pending' },
