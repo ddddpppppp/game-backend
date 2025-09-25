@@ -198,6 +198,10 @@ function isWithdrawType() {
             <ElForm ref="formRef" :model="form" :rules="formRules" label-width="180px" label-suffix="：">
               <!-- 充值设置表单 -->
               <template v-if="isRechargeType()">
+                <!-- 新用户注册赠送设置 -->
+                <ElFormItem label="新用户注册赠送金额" prop="new_user_gift_amount">
+                  <ElInputNumber v-model="form.new_user_gift_amount" :min="0" :precision="4" placeholder="请输入新用户注册赠送金额" style="width: 100%" />
+                </ElFormItem>
                 <!-- USDT 设置 -->
                 <ElDivider content-position="left">
                   USDT 充值设置
