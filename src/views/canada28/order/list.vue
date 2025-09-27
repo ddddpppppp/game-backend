@@ -21,7 +21,7 @@ const searchDefault = {
   username: '',
   bet_type: '',
   status: '',
-  user_type: '',
+  user_type: 'user',
   start_date: '',
 }
 const search = ref({ ...searchDefault })
@@ -43,6 +43,7 @@ const statusOptions = [
 
 // 用户类型选项
 const userTypeOptions = [
+  { label: '全部', value: '' },
   { label: '真实用户', value: 'user' },
   { label: '机器人', value: 'bot' },
 ]
@@ -59,6 +60,14 @@ const betTypeOptions = [
 ]
 
 onMounted(() => {
+  // 检查路由查询参数中是否有期号或用户名
+  const route = useRoute()
+  if (route.query.period_number) {
+    search.value.period_number = route.query.period_number as string
+  }
+  if (route.query.username) {
+    search.value.username = route.query.username as string
+  }
   getDataList()
 })
 
@@ -130,9 +139,9 @@ function getUserTypeType(userType: string) {
                 @clear="currentChange()"
               />
             </ElFormItem>
-            <ElFormItem label="用户名">
+            <ElFormItem label="用户邮箱">
               <ElInput
-                v-model="search.username" placeholder="请输入用户名，支持模糊查询" clearable @keydown.enter="currentChange()"
+                v-model="search.username" placeholder="请输入用户邮箱，支持模糊查询" clearable @keydown.enter="currentChange()"
                 @clear="currentChange()"
               />
             </ElFormItem>

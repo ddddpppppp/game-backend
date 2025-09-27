@@ -39,6 +39,8 @@ const statusOptions = [
   { label: '已结算', value: '3' },
 ]
 
+const router = useRouter()
+
 onMounted(() => {
   getDataList()
 })
@@ -93,6 +95,16 @@ function formatNumber(value: string | number) {
     return '0'
   }
   return Number(value).toLocaleString()
+}
+
+// 点击期号跳转到投注记录页面
+function handlePeriodClick(periodNumber: string) {
+  router.push({
+    name: 'canada28OrderList',
+    query: {
+      period_number: periodNumber,
+    },
+  })
 }
 </script>
 
@@ -158,7 +170,18 @@ function formatNumber(value: string | number) {
         v-loading="loading" class="my-4" :data="dataList" height="100%" highlight-current-row border
         @sort-change="sortChange"
       >
-        <ElTableColumn prop="period_number" label="期号" min-width="120" header-align="center" align="center" />
+        <ElTableColumn prop="period_number" label="期号" min-width="120" header-align="center" align="center">
+          <template #default="scope">
+            <ElButton
+              type="primary"
+              link
+              class="period-link"
+              @click="handlePeriodClick(scope.row.period_number)"
+            >
+              {{ scope.row.period_number }}
+            </ElButton>
+          </template>
+        </ElTableColumn>
         <ElTableColumn prop="result_numbers" label="开奖号码" min-width="120" header-align="center" align="center">
           <template #default="scope">
             <div class="flex items-center justify-center gap-1">
@@ -274,5 +297,15 @@ function formatNumber(value: string | number) {
 .el-divider {
   width: calc(100% + 40px);
   margin-inline: -20px;
+}
+
+.period-link {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.period-link:hover {
+  color: #409eff;
+  text-decoration: underline;
 }
 </style>

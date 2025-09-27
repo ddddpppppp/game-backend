@@ -69,4 +69,9 @@ export default {
   processWithdraw: (data: any) => api.post('shop/user/processWithdraw', data).then((res) => {
     return res
   }),
+
+  // 获取用户统计数据
+  getUserStats: (data: { user_id: number }) => api.post('shop/user/getUserStats', data).then((res) => {
+    return res
+  }),
 }

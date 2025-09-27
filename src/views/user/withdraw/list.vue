@@ -6,6 +6,7 @@ meta:
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
 import apiUser from '@/api/modules/user'
+import UserStatsDialog from '@/components/UserStatsDialog.vue'
 
 defineOptions({
   name: 'WithdrawList',
@@ -24,6 +25,8 @@ const searchDefault = {
   coin_type: '',
   start_date: '',
   end_date: '',
+  device_code: '',
+  ip: '',
 }
 const search = ref({ ...searchDefault })
 function searchReset() {
@@ -35,6 +38,7 @@ const loading = ref(false)
 const dataList = ref([])
 const stats = ref({
   total_amount: 0,
+  total_fee: 0,
   pending_amount: 0,
   completed_amount: 0,
   failed_amount: 0,
@@ -65,6 +69,8 @@ function getDataList() {
     ...(search.value.coin_type && { coin_type: search.value.coin_type }),
     ...(search.value.start_date && { start_date: search.value.start_date }),
     ...(search.value.end_date && { end_date: search.value.end_date }),
+    ...(search.value.device_code && { device_code: search.value.device_code }),
+    ...(search.value.ip && { ip: search.value.ip }),
   }
   apiUser.getUserWithdrawList(params).then((res: any) => {
     loading.value = false
@@ -94,17 +100,42 @@ function sortChange({ prop, order }: { prop: string, order: string }) {
 // 处理提现申请
 function processWithdraw(row: any, action: 'approve' | 'reject') {
   const actionText = action === 'approve' ? '批准' : '拒绝'
-  const confirmText = `确认${actionText}用户「${row.user?.nickname}」的提现申请吗？`
 
-  ElMessageBox.confirm(confirmText, '确认信息').then(() => {
-    apiUser.processWithdraw({
-      id: row.id,
-      action,
-    }).then(() => {
-      getDataList()
-      ElMessage.success(`${actionText}成功`)
-    })
-  }).catch(() => {})
+  if (action === 'approve') {
+    const confirmText = `确认${actionText}用户「${row.user?.nickname}」的提现申请吗？`
+    ElMessageBox.confirm(confirmText, '确认信息').then(() => {
+      apiUser.processWithdraw({
+        id: row.id,
+        action,
+      }).then(() => {
+        getDataList()
+        ElMessage.success(`${actionText}成功`)
+      })
+    }).catch(() => {})
+  }
+  else {
+    // 拒绝时需要填写理由
+    ElMessageBox.prompt(
+      `请输入拒绝用户「${row.user?.nickname}」提现申请的理由：`,
+      '拒绝理由',
+      {
+        confirmButtonText: '确认拒绝',
+        cancelButtonText: '取消',
+        inputPattern: /.+/,
+        inputErrorMessage: '请输入拒绝理由',
+        inputPlaceholder: '请填写拒绝理由...',
+      },
+    ).then(({ value }) => {
+      apiUser.processWithdraw({
+        id: row.id,
+        action,
+        remark: value,
+      }).then(() => {
+        getDataList()
+        ElMessage.success(`${actionText}成功`)
+      })
+    }).catch(() => {})
+  }
 }
 
 // 获取状态类型
@@ -149,6 +180,14 @@ function formatDate(date: string) {
     return '-'
   }
   return new Date(date).toLocaleString('zh-CN')
+}
+
+// 用户统计对话框引用
+const userStatsDialogRef = ref()
+
+// 查看用户统计
+function viewUserStats(userId: number) {
+  userStatsDialogRef.value?.open(userId)
 }
 </script>
 
@@ -204,6 +243,18 @@ function formatDate(date: string) {
                 clearable
               />
             </ElFormItem>
+            <ElFormItem v-if="!fold" label="设备号">
+              <ElInput
+                v-model="search.device_code" placeholder="请输入设备号，支持模糊查询" clearable @keydown.enter="currentChange()"
+                @clear="currentChange()"
+              />
+            </ElFormItem>
+            <ElFormItem v-if="!fold" label="注册IP">
+              <ElInput
+                v-model="search.ip" placeholder="请输入注册IP，支持模糊查询" clearable @keydown.enter="currentChange()"
+                @clear="currentChange()"
+              />
+            </ElFormItem>
             <ElFormItem>
               <ElButton @click="searchReset(); currentChange()">
                 重置
@@ -228,7 +279,7 @@ function formatDate(date: string) {
       <ElDivider border-style="dashed" />
 
       <!-- 统计卡片 -->
-      <div class="grid grid-cols-1 mb-4 ml-2 mr-2 gap-4 md:grid-cols-4">
+      <div class="grid-cols-1 mb-4 ml-2 mr-2 gap-4 hidden md:grid md:grid-cols-5">
         <ElCard>
           <div class="flex items-center justify-between">
             <div>
@@ -240,6 +291,20 @@ function formatDate(date: string) {
               </p>
             </div>
             <FaIcon name="i-ep:money" class="text-3xl text-blue-500" />
+          </div>
+        </ElCard>
+
+        <ElCard>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">
+                总手续费
+              </p>
+              <p class="text-2xl text-gray-600 font-bold">
+                ${{ Number(stats.total_fee).toFixed(2) }}
+              </p>
+            </div>
+            <FaIcon name="i-ep:coin" class="text-3xl text-gray-500" />
           </div>
         </ElCard>
 
@@ -301,7 +366,7 @@ function formatDate(date: string) {
         v-loading="loading" class="my-4" :data="dataList" height="100%" highlight-current-row border
         @sort-change="sortChange"
       >
-        <ElTableColumn prop="id" label="ID" min-width="80" header-align="center" align="center" />
+        <ElTableColumn prop="id" label="ID" min-width="80" header-align="center" align="center" class-name="hidden md:table-cell" />
         <ElTableColumn prop="user" label="用户信息" min-width="200" header-align="center" align="center">
           <template #default="scope">
             <div v-if="scope.row.user">
@@ -315,7 +380,59 @@ function formatDate(date: string) {
             <span v-else>-</span>
           </template>
         </ElTableColumn>
-        <!-- <ElTableColumn prop="order_no" label="订单号" min-width="180" header-align="center" align="center">
+        <ElTableColumn label="用户统计" min-width="100" header-align="center" align="center">
+          <template #default="scope">
+            <ElTooltip content="查看用户统计" placement="top">
+              <ElButton
+                type="primary"
+                size="small"
+                circle
+                @click="viewUserStats(scope.row.user_id)"
+              >
+                <FaIcon name="i-ep:data-analysis" />
+              </ElButton>
+            </ElTooltip>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="device_code" label="设备号" min-width="160" header-align="center" align="center" class-name="hidden lg:table-cell">
+          <template #default="scope">
+            <div v-if="scope.row.user && scope.row.user.device_code" class="flex items-center justify-center gap-2">
+              <span
+                class="text-sm font-mono"
+                :class="{ 'text-red-600 font-bold': scope.row.device_code_count > 2 }"
+              >
+                {{ scope.row.user.device_code.length > 10 ? `${scope.row.user.device_code.slice(0, 8)}...` : scope.row.user.device_code }}
+              </span>
+              <ElButton size="small" text @click="copyToClipboard(scope.row.user.device_code)">
+                <FaIcon name="i-ep:copy-document" />
+              </ElButton>
+              <span v-if="scope.row.device_code_count > 1" class="text-xs text-gray-500">
+                ({{ scope.row.device_code_count }})
+              </span>
+            </div>
+            <span v-else>-</span>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="ip" label="注册IP" min-width="170" header-align="center" align="center" class-name="hidden lg:table-cell">
+          <template #default="scope">
+            <div v-if="scope.row.user && scope.row.user.ip" class="flex items-center justify-center gap-2">
+              <span
+                class="text-sm font-mono"
+                :class="{ 'text-red-600 font-bold': scope.row.ip_count > 2 }"
+              >
+                {{ scope.row.user.ip }}
+              </span>
+              <ElButton size="small" text @click="copyToClipboard(scope.row.user.ip)">
+                <FaIcon name="i-ep:copy-document" />
+              </ElButton>
+              <span v-if="scope.row.ip_count > 1" class="text-xs text-gray-500">
+                ({{ scope.row.ip_count }})
+              </span>
+            </div>
+            <span v-else>-</span>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="order_no" label="订单号" min-width="250" header-align="center" align="center" class-name="hidden md:table-cell">
           <template #default="scope">
             <div v-if="scope.row.order_no" class="flex items-center justify-center gap-2">
               <span class="text-sm font-mono">{{ scope.row.order_no }}</span>
@@ -325,7 +442,7 @@ function formatDate(date: string) {
             </div>
             <span v-else>-</span>
           </template>
-        </ElTableColumn> -->
+        </ElTableColumn>
         <ElTableColumn prop="amount" label="提现金额" min-width="160" header-align="center" align="center">
           <template #default="scope">
             <div class="font-medium">
@@ -336,16 +453,20 @@ function formatDate(date: string) {
             </div>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="fee" label="手续费" min-width="100" header-align="center" align="center">
+        <ElTableColumn prop="fee" label="手续费" min-width="100" header-align="center" align="center" class-name="hidden md:table-cell">
           <template #default="scope">
             {{ formatAmount(scope.row.fee || 0, '$') }}
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="channel_id" label="类型" min-width="80" header-align="center" align="center" />
-        <ElTableColumn prop="account" label="提现信息" min-width="160" header-align="center" align="center">
+        <ElTableColumn prop="channel_name" label="类型" min-width="90" header-align="center" align="center">
+          <template #default="scope">
+            <span class="text-sm font-bold text-red-500">{{ scope.row.channel_name }}</span>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="account" label="提现信息" min-width="420" header-align="center" align="center">
           <template #default="scope">
             <div v-if="scope.row.account" class="flex items-center justify-center gap-2">
-              <span class="text-sm font-mono">{{ scope.row.account.slice(0, 6) }}...{{ scope.row.account.slice(-6) }}</span>
+              <span class="text-sm font-mono">{{ scope.row.account }}</span>
               <ElButton size="small" text @click="copyToClipboard(scope.row.account)">
                 <FaIcon name="i-ep:copy-document" />
               </ElButton>
@@ -365,7 +486,7 @@ function formatDate(date: string) {
             {{ formatDate(scope.row.created_at) }}
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="completed_at" label="处理时间" min-width="160" header-align="center" align="center">
+        <ElTableColumn prop="completed_at" label="处理时间" min-width="160" header-align="center" align="center" class-name="hidden lg:table-cell">
           <template #default="scope">
             {{ formatDate(scope.row.completed_at) }}
           </template>
@@ -404,6 +525,9 @@ function formatDate(date: string) {
         background @size-change="sizeChange" @current-change="currentChange"
       />
     </FaPageMain>
+
+    <!-- 用户统计对话框 -->
+    <UserStatsDialog ref="userStatsDialogRef" />
   </div>
 </template>
 

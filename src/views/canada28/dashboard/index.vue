@@ -291,8 +291,8 @@ function getLast7Days() {
           :trend="personalStats.realProfitTrend.trend"
         />
         <!-- 空占位符保持布局 -->
-        <div class="flex-1" />
-        <div class="flex-1" />
+        <!-- <div class="flex-1" />
+        <div class="flex-1" /> -->
       </div>
 
       <!-- Team Performance Section with ECharts -->

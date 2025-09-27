@@ -121,7 +121,7 @@ function onDateRangeChange() {
               </span>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="购买金额" min-width="120" header-align="center" align="center">
+          <ElTableColumn label="赠送金额" min-width="120" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-green-600'">
                 ${{ scope.row.deposit_amount || '0.00' }}

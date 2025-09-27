@@ -20,6 +20,7 @@ const tableAutoHeight = ref(false)
 const searchDefault = {
   username: '',
   nickname: '',
+  user_type: 'user',
   status: '',
   parent_id: '',
   ip: '',
@@ -46,6 +47,13 @@ const statusOptions = [
   { label: '禁用', value: '0' },
 ]
 
+// 用户类型选项
+const userTypeOptions = [
+  { label: '全部', value: '' },
+  { label: '真实用户', value: 'user' },
+  { label: '机器人', value: 'bot' },
+]
+
 // 对话框状态
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
@@ -67,6 +75,7 @@ function getDataList() {
     ...getParams(),
     ...(search.value.username && { username: search.value.username }),
     ...(search.value.nickname && { nickname: search.value.nickname }),
+    ...(search.value.user_type && { user_type: search.value.user_type }),
     ...(search.value.status !== '' && { status: search.value.status }),
     ...(search.value.parent_id && { parent_id: search.value.parent_id }),
     ...(search.value.ip && { ip: search.value.ip }),
@@ -173,6 +182,10 @@ function handlePasswordSubmit() {
 function handleDialogClose() {
   dialogVisible.value = false
 }
+// 获取用户类型标签类型
+function getUserTypeType(userType: string) {
+  return userType === 'bot' ? 'info' : 'success'
+}
 </script>
 
 <template>
@@ -201,6 +214,16 @@ function handleDialogClose() {
               <ElSelect v-model="search.status" placeholder="请选择状态" clearable>
                 <ElOption
                   v-for="option in statusOptions"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
+              </ElSelect>
+            </ElFormItem>
+            <ElFormItem label="用户类型">
+              <ElSelect v-model="search.user_type" placeholder="请选择用户类型" clearable>
+                <ElOption
+                  v-for="option in userTypeOptions"
                   :key="option.value"
                   :label="option.label"
                   :value="option.value"
@@ -298,6 +321,14 @@ function handleDialogClose() {
             </ElTag>
           </template>
         </ElTableColumn>
+        <ElTableColumn prop="user_type_text" label="用户类型" min-width="100" header-align="center" align="center">
+          <template #default="scope">
+            <ElTag :type="getUserTypeType(scope.row.user_type)" size="small">
+              {{ scope.row.user_type }}
+            </ElTag>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="balance" label="余额" min-width="170" header-align="center" align="center" />
         <ElTableColumn prop="created_at" label="注册时间" min-width="170" header-align="center" align="center" />
         <ElTableColumn prop="updated_at" label="更新时间" min-width="170" header-align="center" align="center" />
 

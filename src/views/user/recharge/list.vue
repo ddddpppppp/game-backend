@@ -51,6 +51,11 @@ const statusOptions = [
 ]
 
 onMounted(() => {
+  // 检查路由查询参数中是否有用户名
+  const route = useRoute()
+  if (route.query.username) {
+    search.value.username = route.query.username as string
+  }
   getDataList()
 })
 
@@ -215,7 +220,7 @@ function formatDate(date: string) {
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-600">
-                总充值金额
+                订单金额
               </p>
               <p class="text-2xl text-blue-600 font-bold">
                 ${{ Number(stats.total_amount).toFixed(2) }}
@@ -246,7 +251,7 @@ function formatDate(date: string) {
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-600">
-                已完成
+                已完成充值
               </p>
               <p class="text-2xl text-green-600 font-bold">
                 ${{ Number(stats.completed_amount).toFixed(2) }}
