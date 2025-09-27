@@ -107,7 +107,7 @@ function onDateRangeChange() {
           <span class="text-lg font-semibold">财务数据</span>
         </template>
         <ElTable v-loading="loading" :data="[...channelStats, summaryStats]" border>
-          <ElTableColumn prop="channel_name" label="日期" min-width="120" header-align="center" align="center">
+          <ElTableColumn prop="channel_name" label="渠道" min-width="120" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold text-blue-600' : ''">
                 {{ scope.row.channel_name }}
@@ -117,21 +117,21 @@ function onDateRangeChange() {
           <ElTableColumn label="注册人数" min-width="100" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-blue-600'">
-                {{ scope.row.deposit_count || 0 }}人
+                {{ scope.row.register_count === '--' ? '--' : `${scope.row.register_count || 0}人` }}
               </span>
             </template>
           </ElTableColumn>
           <ElTableColumn label="赠送金额" min-width="120" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-green-600'">
-                ${{ scope.row.deposit_amount || '0.00' }}
+                ${{ scope.row.gift_amount || '0.00' }}
               </span>
             </template>
           </ElTableColumn>
           <ElTableColumn label="充值人数" min-width="100" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-blue-600'">
-                {{ scope.row.deposit_count || 0 }}人
+                {{ scope.row.deposit_user_count || 0 }}人
               </span>
             </template>
           </ElTableColumn>
@@ -171,7 +171,7 @@ function onDateRangeChange() {
           <ElTableColumn label="下分人数" min-width="100" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-blue-600'">
-                {{ scope.row.withdraw_count || 0 }}人
+                {{ scope.row.withdraw_user_count || 0 }}人
               </span>
             </template>
           </ElTableColumn>
@@ -199,7 +199,7 @@ function onDateRangeChange() {
           <ElTableColumn label="未下分" min-width="100" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-yellow-600'">
-                ${{ scope.row.user_balances || '0.00' }}
+                {{ scope.row.user_balances === '--' ? '--' : `$${scope.row.user_balances || '0.00'}` }}
               </span>
             </template>
           </ElTableColumn>
