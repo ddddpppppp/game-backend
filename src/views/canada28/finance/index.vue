@@ -175,6 +175,13 @@ function onDateRangeChange() {
               </span>
             </template>
           </ElTableColumn>
+          <ElTableColumn label="下分笔数" min-width="100" header-align="center" align="center">
+            <template #default="scope">
+              <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-blue-600'">
+                {{ scope.row.withdraw_count || 0 }}笔
+              </span>
+            </template>
+          </ElTableColumn>
           <ElTableColumn label="下分金额" min-width="120" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-red-600'">

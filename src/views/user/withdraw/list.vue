@@ -192,10 +192,7 @@ function viewUserStats(userId: number) {
 
 // 显示失败原因
 function showFailureReason(remark: string) {
-  ElMessageBox.alert(remark, '失败原因', {
-    confirmButtonText: '确定',
-    type: 'error'
-  })
+  ElMessageBox.alert(remark, '失败原因', { confirmButtonText: '确定' })
 }
 </script>
 
@@ -374,7 +371,7 @@ function showFailureReason(remark: string) {
         v-loading="loading" class="my-4" :data="dataList" height="100%" highlight-current-row border
         @sort-change="sortChange"
       >
-        <ElTableColumn prop="id" label="ID" min-width="80" header-align="center" align="center" class-name="hidden md:table-cell" />
+        <!-- <ElTableColumn prop="id" label="ID" min-width="80" header-align="center" align="center" class-name="hidden md:table-cell" /> -->
         <ElTableColumn prop="user" label="用户信息" min-width="200" header-align="center" align="center">
           <template #default="scope">
             <div v-if="scope.row.user">

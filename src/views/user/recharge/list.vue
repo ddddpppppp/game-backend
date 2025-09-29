@@ -287,7 +287,7 @@ function formatDate(date: string) {
         v-loading="loading" class="my-4" :data="dataList" height="100%" highlight-current-row border
         @sort-change="sortChange"
       >
-        <ElTableColumn prop="id" label="ID" min-width="80" header-align="center" align="center" />
+        <!-- <ElTableColumn prop="id" label="ID" min-width="80" header-align="center" align="center" /> -->
         <ElTableColumn prop="user" label="用户信息" min-width="200" header-align="center" align="center">
           <template #default="scope">
             <div v-if="scope.row.user">
@@ -332,6 +332,11 @@ function formatDate(date: string) {
             <ElTag :type="getStatusType(scope.row.status)" size="small">
               {{ getStatusText(scope.row.status) }}
             </ElTag>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="channel_name" label="渠道" min-width="100" header-align="center" align="center">
+          <template #default="scope">
+            {{ scope.row.channel_name }}
           </template>
         </ElTableColumn>
         <ElTableColumn prop="created_at" label="创建时间" min-width="160" header-align="center" align="center">
