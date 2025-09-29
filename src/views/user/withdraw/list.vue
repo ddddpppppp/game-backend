@@ -189,6 +189,14 @@ const userStatsDialogRef = ref()
 function viewUserStats(userId: number) {
   userStatsDialogRef.value?.open(userId)
 }
+
+// 显示失败原因
+function showFailureReason(remark: string) {
+  ElMessageBox.alert(remark, '失败原因', {
+    confirmButtonText: '确定',
+    type: 'error'
+  })
+}
 </script>
 
 <template>
@@ -460,7 +468,7 @@ function viewUserStats(userId: number) {
         </ElTableColumn>
         <ElTableColumn prop="channel_name" label="类型" min-width="90" header-align="center" align="center">
           <template #default="scope">
-            <span class="text-sm font-bold text-red-500">{{ scope.row.channel_name }}</span>
+            <span class="text-sm text-red-500 font-bold">{{ scope.row.channel_name }}</span>
           </template>
         </ElTableColumn>
         <ElTableColumn prop="account" label="提现信息" min-width="420" header-align="center" align="center">
@@ -474,11 +482,22 @@ function viewUserStats(userId: number) {
             <span v-else>-</span>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="status" label="状态" min-width="100" header-align="center" align="center">
+        <ElTableColumn prop="status" label="状态" min-width="120" header-align="center" align="center">
           <template #default="scope">
-            <ElTag :type="getStatusType(scope.row.status)" size="small">
-              {{ getStatusText(scope.row.status) }}
-            </ElTag>
+            <div class="flex items-center justify-center gap-1">
+              <ElTag :type="getStatusType(scope.row.status)" size="small">
+                {{ getStatusText(scope.row.status) }}
+              </ElTag>
+              <ElButton
+                v-if="scope.row.status === 'failed' && scope.row.remark"
+                size="small"
+                text
+                type="danger"
+                @click="showFailureReason(scope.row.remark)"
+              >
+                <FaIcon name="i-ep:info-filled" />
+              </ElButton>
+            </div>
           </template>
         </ElTableColumn>
         <ElTableColumn prop="created_at" label="申请时间" min-width="160" header-align="center" align="center">

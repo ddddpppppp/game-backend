@@ -164,7 +164,7 @@ function onDateRangeChange() {
           <ElTableColumn label="实际金额" min-width="120" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-purple-600'">
-                ${{ scope.row.deposit_amount || '0.00' }}
+                ${{ scope.row.actual_amount || '0.00' }}
               </span>
             </template>
           </ElTableColumn>
@@ -192,7 +192,7 @@ function onDateRangeChange() {
           <ElTableColumn label="实际出金" min-width="120" header-align="center" align="center">
             <template #default="scope">
               <span :class="scope.row.channel_name === '合计' ? 'font-bold' : 'text-red-600'">
-                {{ scope.row.withdraw_amount === '--' ? '--' : `$${scope.row.withdraw_amount}` }}
+                {{ scope.row.actual_withdraw === '--' ? '--' : `$${scope.row.actual_withdraw || '0.00'}` }}
               </span>
             </template>
           </ElTableColumn>
